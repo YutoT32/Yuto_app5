@@ -1,0 +1,153 @@
+{
+  "name": "Node App Health Check",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ab7082ee-329e-4dee-b497-2ff457f4da05",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        368,
+        32
+      ],
+      "webhookId": "491fe7ac-5b60-4837-a781-eb0aad9d2f1b"
+    },
+    {
+      "parameters": {
+        "content": "## Start by saying 'hi'\n![Button](https://i.imgur.com/PrIBJI6.png)",
+        "height": 149,
+        "width": 150
+      },
+      "id": "9d562bb6-e1ad-4454-992a-316f05b2e124",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        192,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "27e9c971-a470-4a04-8c50-9dc10459b79d",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        512,
+        240
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "HCoVXszTJpcFU2pn",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {}
+      },
+      "id": "6e5624f0-0e6c-40ed-b418-07e5126b5cdd",
+      "name": "Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        592,
+        32
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        240
+      ],
+      "id": "dafaf365-1707-489f-8214-4fc9c7c97e9a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "toolDescription": "node.jsで実装されたAPIサーバーのヘルスチェックを実行します。",
+        "url": "http://host.docker.internal:3000/health",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        864,
+        288
+      ],
+      "id": "f604b75d-ced8-4231-aa6b-299091401d2b",
+      "name": "Node App"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Node App": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7bca12d-67fa-405a-8fcf-84c88e6a713f",
+  "meta": {
+    "templateId": "self-building-ai-agent",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "41e0c35c03ada770f11a4ea826ea022d6048fff027ce91320cc06f206c90fd08"
+  },
+  "id": "B9ukQh0FnMrZKm4X",
+  "tags": []
+}
