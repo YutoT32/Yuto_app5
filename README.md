@@ -18,7 +18,8 @@
 summer-intern-2025/
 ├── README.md          # プロジェクト概要（このファイル）
 ├── CLAUDE.md          # AI開発アシスタントガイドライン
-├── n8n/               # n8nワークフロー関連ファイル
+├── compose.yaml       # Docker Compose設定
+├── scripts/           # ユーティリティスクリプト
 ├── src/               # ソースコード
 ├── config/            # 設定ファイル
 └── docs/              # ドキュメント
@@ -28,9 +29,8 @@ summer-intern-2025/
 
 ### 前提条件
 
-- Node.js (v18以上推奨)
-- npm または yarn
-- Docker (オプション)
+- Docker Desktop
+- Docker Compose (Docker Desktopに含まれています)
 
 ### インストール手順
 
@@ -40,24 +40,34 @@ git clone [repository-url]
 cd summer-intern-2025
 ```
 
-2. 依存関係のインストール
+2. 環境変数の設定
 ```bash
-npm install
+# セットアップスクリプトを実行（.envファイルの生成とN8N_ENCRYPTION_KEYの自動生成）
+./scripts/setup-env.sh
+
+# 必要に応じて.envファイルを編集
 ```
 
-3. 環境変数の設定
+3. n8nの起動
 ```bash
-cp .env.example .env
-# .envファイルを編集して必要な設定を追加
+docker compose up -d
 ```
 
-4. n8nの起動
-```bash
-# ローカル環境
-npm run n8n
+4. n8nにアクセス
+- ブラウザで http://localhost:5678 を開く
+- 初回アクセス時はアカウント作成画面が表示されます
 
-# Dockerを使用する場合
-docker-compose up -d
+### n8nの操作
+
+```bash
+# ログを確認
+docker compose logs -f n8n
+
+# n8nを停止
+docker compose down
+
+# n8nを再起動
+docker compose restart n8n
 ```
 
 ## 開発の進め方
