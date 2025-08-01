@@ -67,15 +67,21 @@
   /dist/           # ビルド出力
   package.json     # Node.js依存関係
   tsconfig.json    # TypeScript設定
+  .eslintrc.json   # ESLint設定
+  .prettierrc      # Prettier設定
 
-/n8n/
-  /workflows/      # n8nワークフローのJSON
-  /nodes/          # カスタムノード
-  /credentials/    # 認証情報定義
+/docker/           # Docker関連ファイル
+  /n8n/            # n8n用Dockerfile（curlインストール付き）
+  /node/           # APIサーバー用Dockerfile
 
 /sample/           # サンプルワークフロー
+  Weather Report.json         # 天気情報取得ワークフロー
+  Node App Health Check.json  # APIヘルスチェックワークフロー
+
 /scripts/          # ユーティリティスクリプト
-/docs/             # ドキュメント
+  setup-env.sh     # 環境設定スクリプト
+
+/docs/             # ドキュメント（今後追加予定）
 ```
 
 ## 開発サポート時の注意点
@@ -112,6 +118,13 @@ A: `/api`ディレクトリで`npm install`後、`npm run dev`で開発サーバ
 ### Q: n8nとAPIサーバーの連携はどうしますか？
 A: 同じDockerネットワーク内なので、`http://api:3000`でアクセス可能です。
 
+## Docker構成
+
+- **n8n**: カスタムDockerfile（curlコマンド付き）
+- **APIサーバー**: Node.js 22-alpine ベース
+- **ネットワーク**: 共有ネットワーク（tokium-network）
+- **ボリューム**: n8n_dataで永続化
+
 ## 推奨ツール・ライブラリ
 
 - **開発**: VS Code、n8n Desktop
@@ -125,9 +138,33 @@ A: 同じDockerネットワーク内なので、`http://api:3000`でアクセス
 - [n8nワークフロー例](https://n8n.io/workflows/)
 - [TypeScript公式ドキュメント](https://www.typescriptlang.org/docs/)
 
+## よく使うコマンド
+
+### Docker関連
+```bash
+# 全サービス起動
+docker compose up -d
+
+# ログ確認
+docker compose logs -f api
+docker compose logs -f n8n
+
+# 再起動
+docker compose restart
+```
+
+### API開発
+```bash
+cd api
+npm run dev    # 開発サーバー起動
+npm run lint   # リント実行
+npm run build  # TypeScriptビルド
+```
+
 ## 更新履歴
 
 - 2025年7月: 初版作成
+- 2025年8月: APIサーバー環境追加
 
 ---
 
