@@ -3,13 +3,13 @@ FROM node:22-alpine
 WORKDIR /app
 
 # package.jsonとpackage-lock.json（存在する場合）をコピー
-COPY package*.json ./
+COPY api/package*.json ./
 
 # 依存関係をインストール
 RUN npm install
 
 # ソースコードをコピー
-COPY . .
+COPY api/ .
 
 # TypeScriptをビルド
 RUN npm run build

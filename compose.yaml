@@ -1,6 +1,8 @@
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n
+    build:
+      context: .
+      dockerfile: docker/n8n/Dockerfile
     restart: unless-stopped
     ports:
       - "5678:5678"
@@ -15,8 +17,8 @@ services:
 
   api:
     build:
-      context: ./api
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: docker/node/Dockerfile.dev
     restart: unless-stopped
     ports:
       - "${API_PORT:-3000}:3000"
