@@ -20,8 +20,12 @@ summer-intern-2025/
 ├── CLAUDE.md          # AI開発アシスタントガイドライン
 ├── compose.yaml       # Docker Compose設定
 ├── scripts/           # ユーティリティスクリプト
-├── src/               # ソースコード
-├── config/            # 設定ファイル
+├── api/               # Node.js APIサーバー
+│   ├── src/           # TypeScriptソースコード
+│   ├── package.json   # Node.js依存関係
+│   └── Dockerfile     # APIサーバーのDockerイメージ
+├── n8n/               # n8n関連ファイル（今後追加予定）
+├── sample/            # サンプルワークフロー
 └── docs/              # ドキュメント
 ```
 
@@ -48,26 +52,60 @@ cd summer-intern-2025
 # 必要に応じて.envファイルを編集
 ```
 
-3. n8nの起動
+3. サービスの起動
 ```bash
+# すべてのサービスを起動（n8n + APIサーバー）
 docker compose up -d
+
+# 個別に起動する場合
+docker compose up -d n8n    # n8nのみ
+docker compose up -d api    # APIサーバーのみ
 ```
 
-4. n8nにアクセス
-- ブラウザで http://localhost:5678 を開く
-- 初回アクセス時はアカウント作成画面が表示されます
+4. サービスへのアクセス
+- **n8n**: http://localhost:5678
+  - 初回アクセス時はアカウント作成画面が表示されます
+- **APIサーバー**: http://localhost:3000
+  - ヘルスチェック: http://localhost:3000/health
 
-### n8nの操作
+### Docker操作
 
 ```bash
 # ログを確認
-docker compose logs -f n8n
+docker compose logs -f        # すべてのサービス
+docker compose logs -f n8n    # n8nのみ
+docker compose logs -f api    # APIサーバーのみ
 
-# n8nを停止
+# サービスを停止
 docker compose down
 
-# n8nを再起動
-docker compose restart n8n
+# サービスを再起動
+docker compose restart        # すべてのサービス
+docker compose restart n8n    # n8nのみ
+docker compose restart api    # APIサーバーのみ
+```
+
+### APIサーバーの開発
+
+```bash
+# APIディレクトリに移動
+cd api
+
+# 依存関係をインストール（初回のみ）
+npm install
+
+# 開発モードで起動（ホットリロード対応）
+npm run dev
+
+# TypeScriptのビルド
+npm run build
+
+# リンターの実行
+npm run lint
+npm run lint:fix
+
+# コードフォーマット
+npm run format
 ```
 
 ## 開発の進め方
