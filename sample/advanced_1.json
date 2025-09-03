@@ -1,0 +1,202 @@
+{
+  "name": "advanced_1",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6b9814e8-732c-499a-8132-384ce75e7579",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        -48
+      ],
+      "webhookId": "491fe7ac-5b60-4837-a781-eb0aad9d2f1b"
+    },
+    {
+      "parameters": {
+        "content": "## Start by saying 'hi'\n![Button](https://i.imgur.com/PrIBJI6.png)",
+        "height": 149,
+        "width": 150
+      },
+      "id": "0026415b-502c-49cd-ad04-932c0efaaf22",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4ed23357-a0aa-45ae-9e80-d757a0dc382a",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        32,
+        160
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "DXoTt8HDdrXsPPWq",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=本日の日付{{ $today }}\n今の時間 {{ $today }}\n以上の情報をもとに、以下のユーザーの要望に答えてください\n{{ $json.chatInput }}",
+        "options": {}
+      },
+      "id": "77f8d08e-1c23-4911-b74e-3671173ad782",
+      "name": "Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        112,
+        -48
+      ]
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        160
+      ],
+      "id": "71db668e-03bd-4690-8f37-3ee2343bac44",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        160
+      ],
+      "id": "b45eb8b8-8c7c-4e78-b825-74ccefcf2ac9",
+      "name": "Get many events in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "OGUFNqtMwzIDIh3D",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        464,
+        -48
+      ],
+      "id": "2071144e-9151-4a09-a0f1-0ef97f3f6f3d",
+      "name": "Send a message",
+      "webhookId": "1f461bf3-950f-42d9-806c-3b804d6f1390",
+      "credentials": {
+        "slackApi": {
+          "id": "dgNFY8UOpZ66GCvz",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6a76c512-55a1-4072-83f9-44ee7ba278fa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b3fb025cf05fd97fe32d10abfc6736efc390d68518d2b661f76e68f183ae6f9e"
+  },
+  "id": "gzGyWrgfRCffQeMh",
+  "tags": []
+}
