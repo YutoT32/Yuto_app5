@@ -34,7 +34,8 @@ summer-intern-2025/
 │   └── node/          # Node.js API用Dockerfile
 ├── sample/            # サンプルワークフロー
 │   ├── Weather Report.json        # 天気情報取得
-│   └── Node App Health Check.json # APIヘルスチェック
+│   ├── Node App Health Check.json # APIヘルスチェック
+│   └── advanced_1.json            # n8n応用編①専用workflow
 ├── scripts/           # ユーティリティスクリプト
 │   └── setup-env.sh   # 環境設定スクリプト
 └── docs/              # ドキュメント
