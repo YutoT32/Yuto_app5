@@ -11,18 +11,22 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\""
   },
-  "keywords": ["api", "express", "typescript"],
+  "keywords": [
+    "api",
+    "express",
+    "typescript"
+  ],
   "author": "TOKIUM",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
-    "dotenv": "^16.4.5",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.14.11",
-    "@types/cors": "^2.8.17",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.23",
+    "@types/node": "^20.19.17",
     "@typescript-eslint/eslint-plugin": "^7.16.1",
     "@typescript-eslint/parser": "^7.16.1",
     "eslint": "^8.57.0",

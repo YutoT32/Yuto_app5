@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TOKIUM-IS</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 24px auto; }
+      .chat { border: 1px solid #ddd; border-radius: 8px; padding: 12px; min-height: 240px; }
+      .row { display: flex; gap: 8px; margin-top: 12px; }
+      .msg { margin: 8px 0; }
+      .msg .bubble { display: inline-block; padding: 8px 12px; border-radius: 12px; background: #eee; }
+      .msg.me { text-align: right; }
+      .msg.me  .bubble { background: #eef; }
+      .msg .bubble { white-space: pre-wrap; line-height: 1.6; }
+      .msg .bubble h1, .msg .bubble h2, .msg .bubble h3 { margin: .4em 0 .2em; }
+      .msg .bubble ul, .msg .bubble ol { padding-left: 1.2rem; margin: .3em 0; }
+      .msg .bubble code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+      .msg .bubble pre { overflow: auto; background: #f6f8fa; padding: .75rem; border-radius: .5rem; }
+      .msg .bubble table { border-collapse: collapse; }
+      .msg .bubble table th, .msg .bubble table td { border: 1px solid #ddd; padding: .35rem .5rem; }
+      .msg .bubble a { text-decoration: underline; }
+      input { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; }
+      button { padding: 8px 14px; border-radius: 8px; border: none; background: #333; color: #fff; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  </head>
+  <body>
+    <div class="chat" id="chat">
+      <div class="msg bot"><div class="bubble">こんにちは！登山の計画をお手伝いします。行き先や日付を教えてね。</div></div>
+      <div class="row">
+        <input id="q" placeholder="例）明日、高尾山に登りたいです" />
+        <button id="send">送信</button>
+      </div>
+    </div>
+
+    <script>
+      // ------- 設定 -------
+      const API_URL = 'http://localhost:3001/api/chat';
+
+      // セッションID
+      const KEY = 'chat.sessionId';
+      let sessionId = localStorage.getItem(KEY);
+
+      //セッションIDがなければ作って保存
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem(KEY, sessionId);
+      }
+
+      const chat = document.getElementById('chat');
+      const q    = document.getElementById('q');
+      const btn  = document.getElementById('send');
+
+      function add(text, who) {
+        const wrap = document.createElement('div');
+        wrap.className = 'msg ' + (who || 'bot');
+
+        const b = document.createElement('div');
+        b.className = 'bubble';
+
+        if (who === "bot") {
+            const html = marked.parse(String(text ?? ''));
+            b.innerHTML = DOMPurify.sanitize(html);
+
+            b.querySelectorAll('a[href]').forEach(a => {
+                a.target = '_blank';
+                a.rel = 'noopener';
+            });
+        } else {
+            b.textContent = text;
+        }
+        wrap.appendChild(b);
+
+        const row = chat.querySelector('.row');
+        if (row) chat.insertBefore(wrap, row);
+        else chat.appendChild(wrap);
+        
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      async function send() {
+        const text = q.value.trim();
+
+        // 入力が空の場合は何もしない
+        if (!text) return;
+
+        // ユーザーメッセージを表示
+        add(text, 'me');
+
+        // 入力欄をクリア＋送信ボタンを一時的に無効化
+        q.value = '';
+        btn.disabled = true;
+
+        try {
+          // APIサーバにリクエスト送信（送信内容：sessionId, query）
+          const r = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId, query: text })
+          });
+
+          const ct = r.headers.get('content-type') || '';
+          const data = ct.includes('application/json') ? await r.json() : await r.text();
+
+          // 応答の取り出し（reply / text / output を優先的に使用）
+          let reply;
+          if (typeof data === 'string') {
+            reply = data;
+          } else {
+            reply = data.reply ?? data.text ?? data.output ?? JSON.stringify(data, null, 2);
+          }
+          add(reply, 'bot');
+        } catch (e) {
+          console.error(e);
+          add('エラーが発生しました', 'bot');
+        } finally {
+          btn.disabled = false;
+          q.focus();
+        }
+      }
+
+      //送信ボタンを押すと送信
+      btn.addEventListener('click', send);
+      //Enterキーでも送信できる
+      q.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+    </script>
+  </body>
+</html>

@@ -27,6 +27,7 @@ services:
       - API_KEY=${API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - N8N_URL=http://n8n:5678/webhook/plan-info.v1
     volumes:
       - ./api:/app
       - /app/node_modules

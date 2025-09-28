@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>TOKIUM-IS</title>
+    </head>
+    <body>
+        <div class="chat" id="chat">
+            <div class="msg bot">こんにちは！登山の計画をお手伝いします。行き先や日付を教えてね。</div>
+            <div class="row">
+                <input id="q" placeholder="例）明日、高尾山に登りたいです" />
+                <button id="send">送信</button>
+            </div>
+        </div>
+
+        <script>
+            //セッションID
+            const KEY = "chat.sessionId";
+            let sessionId = localStorage.getItem(KEY);
+
+            //セッションIDがなければ作って保存
+            if (!sessionId){
+                sessionId = "user-" + Math.random().toString(36).slice(2);
+                localStorage.setItem(KEY, sessionId)
+            }
+
+            const messages = document.getElementById("chat");
+            const q = document.getElementById("q");
+            const btn = document.getElementById("send");
+
+            function add(text, cls){
+                const d = document.createElement("div");
+                d.className = "m" + (cls || "bot");
+                d.textContent = text;
+                messages.appendChild(d);
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+
+            async function send(){
+                const text = q.value.trim();
+
+                //入力が空の場合は何もしない
+                if (!text) return;
+
+                //ユーザーメッセージを表示
+                add(text, "me");
+
+                //入力欄をクリア＋送信ボタンを一時的に無効化
+                q.value = "";
+                btn.disabled = true;
+
+                try {
+                    //APIサーバにリクエスト送信（送信内容：sessionId, query）
+                    const r = await fetch("/api/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sessionId, query: text })
+                    });
+
+                    //APIサーバからの応答処理（n8nがJSONを返すと想定）
+                    //応答をJSONとして取得、失敗したら空オブジェクト
+                    const data = await r.json().catch(() => ({}));
+
+                    //応答データの整形
+                    const reply = 
+                        (typeof data === "object" && data != null && "output" in data)
+                        //outputプロパティがあればそれを文字列化
+                        ? String(data.output)
+                        //なければJSON全体を文字列化
+                        : JSON.stringify(data, null, 2);
+                    
+                    //ボットメッセージを表示
+                    add(reply, "bot");
+
+                } catch (e) {
+                    //通信や処理でエラーが発生した場合はエラーメッセージを表示
+                    add("エラーが発生しました", "bot");
+                    console.error(e);
+                } finally {
+                    //送信ボタンを再度有効化
+                    btn.disabled = false;
+                    //入力欄にフォーカスを戻す
+                    q.focus();
+                }
+            }
+
+            btn.addEventListener("click", send);
+            q.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+
+        </script>
+    </body>
+</html>
